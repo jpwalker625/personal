@@ -12,18 +12,23 @@ library(shiny)
 library(tidyverse)
 library(gdata)
 
-#import and wrangle data
+#import data
 taxable <- read.xls("investment_mix.xls", sheet = 1, header = T)
-
-taxable <- taxable %>% gather(key = "asset", value = 'percentage', 3:9)
-
-taxable <- taxable %>% mutate(allocation = 0)
-
 retirement <- read.xls("investment_mix.xls", sheet = 2, header = T)
 
-retirement <- retirement %>% gather(key = "asset", value = 'percentage', 3:9)
+#fix column names
+colnames(taxable) <- gsub(pattern = '\\.', replacement = ' ', x = colnames(taxable))
+colnames(retirement) <- gsub(pattern = '\\.', replacement = ' ', x = colnames(retirement))
 
-retirement <- retirement %>% mutate(allocation = 0)
+#tidy data by gather asset columns into one
+taxable <- taxable %>% gather(key = "asset", value = 'percentage', 3:9)
+retirement <- retirement %>% gather(key = "asset", value = 'percentage', 3:10)
+
+#Bind the tables
+df <- rbind(taxable,retirement)
+
+#factorize asset variable
+df$asset <- factor(df$asset)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -40,7 +45,7 @@ ui <- fluidPage(
         
         selectInput(inputId = "portfolio_type",
                     label = "Select Portfolio Type", 
-                    choices = c('Taxable', 'Retirement')),
+                    choices = c('taxable', 'retirement')),
         
          sliderInput(inputId = "risk_tolerance",
                      label = "Select Risk Tolerance",
@@ -48,15 +53,15 @@ ui <- fluidPage(
                      max = 10,
                      value = 4, 
                      step = 0.5)
-          ),
+          ), # end of sidebarPanel
       
       # Show a plot of the generated distribution
       mainPanel(
-         plotOutput(outputId = "folio_percentage_plot"),
+         tableOutput(outputId = "folio_percentage_table"),
          plotOutput(outputId = "folio_allocation_plot")
-      )
-   )
-)
+      )# end of mainPanel
+   ) # end of sidebarLayout
+) #end of UI
 
 
 # Define server logic required to draw a histogram
@@ -64,25 +69,31 @@ server <- function(input, output) {
 
 #reactive data frame
 folio_mix <- reactive({
-  taxable %>% filter(risk.tolerance == input$risk_tolerance) %>%
+  df %>% filter(`Investment Mix` == input$portfolio_type & 
+                `Risk Tolerance` == input$risk_tolerance & 
+                percentage !=0) %>%
     mutate(allocation = input$asset_value * percentage)
   })
 
-#percentage plot
-output$folio_percentage_plot <- renderPlot({
-      ggplot(folio_mix(), aes(x = asset, y = percentage))+
-    geom_bar(stat = "identity")
+#spread data frame for percentage table
+folio_mix_spread <- reactive({folio_mix() %>%
+    select(-c(`Risk Tolerance`, allocation)) %>%
+    mutate(percentage = paste(percentage * 100, '%', sep = '')) %>%
+    spread(key = asset, value = percentage)
+})
+#percentage table
+output$folio_percentage_table <- renderTable({
+      folio_mix_spread()
    })
 
-#dollar value plot
-observe({
+#allocation plot
 output$folio_allocation_plot <- renderPlot({
-  ggplot(folio_mix(), aes(x  = asset, y = allocation))+
-    geom_bar(stat = "identity")
-  })
+  ggplot(folio_mix(), aes(x  = asset, y = allocation, label = paste('$', allocation, sep = '')))+
+    geom_bar(stat = "identity", aes(fill = asset)) +
+    geom_label()
 })
 
-}
+} #end of server function
 
 # Run the application 
 shinyApp(ui = ui, server = server)
