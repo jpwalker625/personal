@@ -19,6 +19,12 @@ taxable <- taxable %>% gather(key = "asset", value = 'percentage', 3:9)
 
 taxable <- taxable %>% mutate(allocation = 0)
 
+retirement <- read.xls("investment_mix.xls", sheet = 2, header = T)
+
+retirement <- retirement %>% gather(key = "asset", value = 'percentage', 3:9)
+
+retirement <- retirement %>% mutate(allocation = 0)
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
