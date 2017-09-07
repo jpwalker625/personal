@@ -12,6 +12,10 @@ library(shiny)
 library(tidyverse)
 library(gdata)
 
+#########################################
+##### Portfolio Rebalance Variables #####
+#########################################
+
 #import data
 taxable <- read.xls("investment_mix.xls", sheet = 1, header = T)
 retirement <- read.xls("investment_mix.xls", sheet = 2, header = T)
@@ -30,6 +34,21 @@ df <- rbind(taxable,retirement)
 #factorize asset variable
 df$asset <- factor(df$asset)
 
+#######################################
+##### Compound Interest Variables #####
+#######################################
+
+##equation variables
+##will need to develop a data frame that calculates the compound interest for an 
+##intertval between 1:n years 
+# V = P(1+r/n)(nt)
+# V = the future value of the investment
+# P = the principal investment amount
+# r = the annual interest rate
+# n = the number of times that interest is compounded per year
+# t = the number of years the money is invested for
+
+
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
@@ -39,23 +58,50 @@ ui <- fluidPage(
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
+        h3("Portfolio Rebalance"),
+        
         numericInput(inputId = "asset_value", 
-                     label = "Input Balance",
+                     label = "Investment Balance",
                      value = 10000),
         
         selectInput(inputId = "portfolio_type",
                     label = "Select Portfolio Type", 
-                    choices = c('taxable', 'retirement')),
+                    choices = c('taxable', 'retirement')
+                    ),
         
-         sliderInput(inputId = "risk_tolerance",
+        sliderInput(inputId = "risk_tolerance",
                      label = "Select Risk Tolerance",
                      min = 0.5,
                      max = 10,
                      value = 4, 
-                     step = 0.5)
-          ), # end of sidebarPanel
+                     step = 0.5),
+        hr(),
+        
+        h3("Compound Interest Calculator"),
       
-      # Show a plot of the generated distribution
+        numericInput(inputId = 'principal_investment',
+                     label = "Input Principal Amount",
+                     value = 1000),
+        
+        sliderInput(inputId = "annual_interest_rate",
+                     label = "Annual Interest Rate (%)",
+                     value = 10,
+                     min = 1, 
+                     max = 100),
+        
+        numericInput(inputId = "investment_period",
+                    label = "Investment Period (years)", 
+                    value = 5
+                    ),
+        
+        selectInput(inputId = "compound_interval",
+                    label = "Compound Interval",
+                    choices = c("daily", "monthly", "quarterly", "bi-Annually", "annually"),
+                    selected = "Annually")
+        
+        ), #end of sidebarPanel
+      
+      # Show visualizations
       mainPanel(
          tableOutput(outputId = "folio_percentage_table"),
          plotOutput(outputId = "folio_allocation_plot")
