@@ -10,6 +10,7 @@
 #require packages
 library(shiny)
 library(tidyverse)
+library(purrr)
 library(gdata)
 
 #########################################
@@ -38,15 +39,8 @@ df$asset <- factor(df$asset)
 ##### Compound Interest Variables #####
 #######################################
 
-##equation variables
-##will need to develop a data frame that calculates the compound interest for an 
-##intertval between 1:n years 
-# V = P(1+r/n)(nt)
-# V = the future value of the investment
-# P = the principal investment amount
-# r = the annual interest rate
-# n = the number of times that interest is compounded per year
-# t = the number of years the money is invested for
+compound_df <- data_frame(rate = c("daily", "monthly", "quarterly", "bi-annually", "annually"),
+                          n = c(365, 12, 4, 2, 1))
 
 
 # Define UI for application that draws a histogram
@@ -96,7 +90,7 @@ ui <- fluidPage(
         
         selectInput(inputId = "compound_interval",
                     label = "Compound Interval",
-                    choices = c("daily", "monthly", "quarterly", "bi-Annually", "annually"),
+                    choices = c("daily", "monthly", "quarterly", "bi-annually", "annually"),
                     selected = "Annually")
         
         ), #end of sidebarPanel
@@ -104,13 +98,21 @@ ui <- fluidPage(
       # Show visualizations
       mainPanel(
          tableOutput(outputId = "folio_percentage_table"),
-         plotOutput(outputId = "folio_allocation_plot")
+         
+         plotOutput(outputId = "folio_allocation_plot"),
+         
+         hr(),
+         
+         plotOutput(outputId = "return_rate_plot"),
+         
+         tableOutput(outputId = "temp_table")
+         
       )# end of mainPanel
    ) # end of sidebarLayout
 ) #end of UI
 
 
-# Define server logic required to draw a histogram
+#Define server logic
 server <- function(input, output) {
 
 #reactive data frame
@@ -139,8 +141,66 @@ output$folio_allocation_plot <- renderPlot({
     geom_label()
 })
 
+#Compound Interest Variables & Equation
+
+#p = the principal investment amount
+p <- reactive({input$principal_investment})
+
+#r = the annual interest rate
+r <- reactive({input$annual_interest_rate/100})
+
+#n = the number of times that interest is compounded per year
+n <- reactive({
+  compound_df %>% 
+    filter(rate == input$compound_interval) %>% 
+    select(n)
+  })
+  
+#t = the number of years the money is invested for
+t <-  reactive({input$investment_period})
+
+# compound_interst <- function(p,r,n,t){
+#   v <- p*(1+r/n)^(n*t)
+#   return(v)
+# }
+  
+# compound_interest <- reactive({
+#   for(i in 1:t()){
+#  v <- print(p()*(1+r()/n())^(n()*i))
+#   returns <- v
+#   returns <- c(returns, v)
+#   }
+# })
+
+#compound_interest equation
+
+compound_interest <- function(p,r,n,t){
+  return_arr = c()
+  for(i in 1:t){
+   v <- p*(1+r/n)^(n*i)
+   return_arr <- c(return_arr, v)
+  }
+  return(return_arr)
+  }
+
+#to be matched with the compound interest rates
+years <- reactive({1:t()})
+
+#execute reactive compound_interest function
+returns <- reactive({compound_interest(p(),r(),n(),t())})
+
+returns_df <- reactive({bind_cols(returns = returns(), years = years())})
+
+output$temp_table <- renderTable({returns_df()})
+
+output$return_rate_plot <- renderPlot({
+  returns_df() %>% 
+    ggplot(aes(x = years, y = returns))+
+    geom_point() +
+    geom_line()
+})
+
 } #end of server function
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
