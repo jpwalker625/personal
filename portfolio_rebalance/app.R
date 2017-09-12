@@ -136,9 +136,12 @@ output$folio_percentage_table <- renderTable({
 
 #allocation plot
 output$folio_allocation_plot <- renderPlot({
-  ggplot(folio_mix(), aes(x  = asset, y = allocation, label = paste('$', allocation, sep = '')))+
+  folio_mix() %>%
+  ggplot(aes(x = asset, y = allocation, label = paste('$', allocation, sep = ''))) +
     geom_bar(stat = "identity", aes(fill = asset)) +
-    geom_label()
+    geom_label() +
+    scale_y_continuous(labels = scales::dollar) +
+    labs(title = "Portfolio Allocation", x = "Asset", y = "Allocation (in U.S. Dollars)")
 })
 
 #Compound Interest Variables & Equation
@@ -195,9 +198,14 @@ output$temp_table <- renderTable({returns_df()})
 
 output$return_rate_plot <- renderPlot({
   returns_df() %>% 
-    ggplot(aes(x = years, y = returns))+
+    ggplot(aes(x = years, y = returns)) +
     geom_point() +
-    geom_line()
+    geom_line() +
+    scale_y_continuous(labels = scales::dollar) +
+    scale_x_continuous(breaks = 1:t()) +
+    labs(title = "The Power of Compounding Interest", 
+          x = "Investment Period", 
+          y = "Value (in U.S. Dollars)")
 })
 
 } #end of server function
