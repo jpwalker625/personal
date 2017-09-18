@@ -12,6 +12,7 @@ library(shiny)
 library(tidyverse)
 library(purrr)
 library(gdata)
+library(plotly)
 
 #########################################
 ##### Portfolio Rebalance Variables #####
@@ -103,7 +104,7 @@ ui <- fluidPage(
          
          hr(),
          
-         plotOutput(outputId = "return_rate_plot"),
+         plotlyOutput(outputId = "return_rate_plot"),
          
          tableOutput(outputId = "temp_table")
          
@@ -193,11 +194,11 @@ returns_df <- reactive({bind_cols(returns = returns(), years = years())})
 
 output$temp_table <- renderTable({returns_df()})
 
-output$return_rate_plot <- renderPlot({
-  returns_df() %>% 
-    ggplot(aes(x = years, y = returns))+
-    geom_point() +
-    geom_line()
+output$return_rate_plot <- renderPlotly({
+   plot_ly(returns_df(), x = ~years, y = ~returns, 
+           mode = 'lines+markers', 
+           text = ~paste('Value after', years(), 'years: ','$', round(returns(),digits = 2)))
+    
 })
 
 } #end of server function
