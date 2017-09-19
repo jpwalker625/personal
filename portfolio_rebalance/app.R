@@ -138,11 +138,13 @@ output$folio_percentage_table <- renderTable({
 #allocation plot
 output$folio_allocation_plot <- renderPlot({
   folio_mix() %>%
-  ggplot(aes(x = asset, y = allocation, label = paste('$', allocation, sep = ''))) +
+  ggplot(aes(x = asset, y = allocation)) +
     geom_bar(stat = "identity", aes(fill = asset)) +
-    geom_label() +
+    geom_label(aes(label = paste("$", allocation))) +
     scale_y_continuous(labels = scales::dollar) +
-    labs(title = "Portfolio Allocation", x = "Asset", y = "Allocation (in U.S. Dollars)")
+    labs(title = "Portfolio Allocation", x = "Asset", y = "Allocation (in U.S. Dollars)") +
+    theme(axis.text.x = element_text(angle = 15, hjust = 1), 
+          plot.title = element_text(hjust = 0.5))
 })
 
 #Compound Interest Variables & Equation
@@ -177,7 +179,6 @@ t <-  reactive({input$investment_period})
 # })
 
 #compound_interest equation
-
 compound_interest <- function(p,r,n,t){
   return_arr = c()
   for(i in 1:t){
@@ -195,28 +196,24 @@ returns <- reactive({compound_interest(p(),r(),n(),t())})
 
 returns_df <- reactive({bind_cols(returns = returns(), years = years())})
 
-output$temp_table <- renderTable({returns_df()})
-
 output$return_rate_plot <- renderPlotly({
-   plot_ly(returns_df(), x = ~years, y = ~returns, 
-           mode = 'lines+markers', 
-           text = ~paste('Value after', years(), 'years: ','$', round(returns(),digits = 2))) %>%
-             layout(title = 'The Power of Compounding Interest', 
-                    xaxis = list(title = 'Investment Period'),
-                    yaxis = list(title = "Value (in U.S. Dollars"))
-})    
+  returns_df() %>%
+   ggplot(aes(x = years, y = returns)) +
+    geom_point() +
+    geom_line() +
+    scale_y_continuous(labels = scales::dollar) +
+    scale_x_continuous(breaks = 1:t()) +
+    labs(title = "The Power of Compounding Interest",
+          x = "Investment Period",
+          y = "Value (in U.S. Dollars)")
 
-# output$return_rate_plot <- renderPlot({
-#   returns_df() %>% 
-#     ggplot(aes(x = years, y = returns)) +
-#     geom_point() +
-#     geom_line() +
-#     scale_y_continuous(labels = scales::dollar) +
-#     scale_x_continuous(breaks = 1:t()) +
-#     labs(title = "The Power of Compounding Interest", 
-#           x = "Investment Period", 
-#           y = "Value (in U.S. Dollars)")
-
+  # plot_ly(returns_df(), x = ~years, y = ~returns, 
+  #         mode = 'lines+markers', 
+  #         text = ~paste('Value after', years(), 'years: ','$', round(returns(),digits = 2))) %>%
+  #   layout(title = 'The Power of Compounding Interest', 
+  #          xaxis = list(title = 'Investment Period'),
+  #          yaxis = list(title = "Value (in U.S. Dollars)"))
+})
 
 } #end of server function
 
