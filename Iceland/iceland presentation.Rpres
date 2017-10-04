@@ -1,0 +1,71 @@
+The Land of Fire & Ice
+========================================================
+author: Joseph Walker
+date: February 16, 2017
+autosize: TRUE
+transition: fade
+transition-speed: default
+
+Why Iceland?
+========================================================
+* Cheap flights with Wow Airlines
+* Safe/Tourist Friendly
+* Geographically Diverse
+
+<img src="flight map.jpg" alt="flight map" style="width: 1200px; height: 300px"/>
+
+***
+<img src="wow_air.jpg" alt="profile" style="width: 200px;"/>
+
+* 4198 miles
+* 9 hours
+
+Trip Stats
+===
+ Counter clock-wise road trip the island via Route 1 (widely known as The Ring Road)
+* 12 days 
+* 1385 miles
+* 31 hours of driving
+* Countless roundabouts
+<img src="Roadtrip_Map.jpg" alt="Roadtrip Map" style="width: 1000px; height: 400px;"/>
+
+Expense Analysis
+===
+```{r slide with plot, echo=FALSE}
+library(forcats)
+library(pander)
+library(knitr)
+library(ggplot2)
+library(pals)
+library(ggthemes)
+
+df <- read.csv("iceland_finances.csv")
+
+df$Stage <- fct_recode(df$Stage, exclude = "Exclude", include = "Include")
+
+df$Category <- fct_recode(df$Category, activity = "Activity", lodging = "Lodging", dining = "Dining",
+                          merchandise = "Merchandise", travel = "Travel", 'gas/automotive' = "Gas/Automotive")
+
+category_totals <- aggregate(list("Total.Cost" = df$Debit), by = list(Category = df$Category), sum)
+type_totals <- aggregate(Debit ~ Category + Type, data = df, sum)
+```
+Total Spent: $5907
+
+```{r, echo=FALSE, fig.width = 10, fig.height = 6,, dpi = 1000}
+my_pal <- brewer.paired(26)
+plot2 <- ggplot(type_totals, aes(Category, Debit, fill = Type, label = paste(Type, Debit, sep = "-"))) +
+  geom_bar(stat = 'identity') +
+  geom_text(data = type_totals, size = 3, position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = my_pal) +
+  ggtitle("Iceland Vacation Expenses Breakdown") +
+  theme_economist_white() +
+  theme(axis.title = element_text(face = "bold"))
+
+plot2
+```
+
+Let's Have A Look
+===
+type: prompt
+
+[photos!](https://goo.gl/photos/A8JzxR58cEMPXU2d9)

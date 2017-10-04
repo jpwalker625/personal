@@ -1,0 +1,92 @@
+Who,Stage, Transaction Date, Description, Category, Debit,Type
+Joe,Exclude,1/18/2017,Duty Free Store,Dining,29.41,alcohol
+Darc,Include,1/29/2017,Islenski barinn ehf,Dining,20.63,alcohol
+Joe,Exclude,1/11/2017,WOW AIR HTEZ1M,Travel,141.98,baggage
+Darc,Exclude,1/10/2017,WOW AIR HTEZ1M,Travel,141.98,baggage
+Joe,Include,1/30/2017,Braud & Co,Dining,15.13,bakery/café
+Joe,Include,1/28/2017,Kaffi Emil,Dining,9.01,bakery/café
+Joe,Include,1/27/2017,Nesbraud,Dining,10.57,bakery/café
+Joe,Include,1/19/2017,Braud & Co,Dining,14.68,bakery/café
+Joe,Include,1/18/2017,Reykjav k Roasters,Dining,13.32,bakery/café
+Darc,Include,1/29/2017,Babalu ehf,Dining,7.65,bakery/café
+Darc,Include,1/26/2017,Adalbakarinn ehf,Dining,12.93,bakery/café
+Darc,Include,1/25/2017,Blaa kannan ehf,Dining,21.2,bakery/café
+Darc,Include,1/18/2017,SANDHOLT,Dining,16.89,bakery/café
+Darc,Include,1/18/2017,HALLGRIMSKIRKJ,activity,15.83,museum
+Darc,Include,1/17/2017,Blue Lagoon ISK - VEB,activity,120.19,blue lagoon
+Darc,Include,1/15/2017,AIRBNB * TK2DQA,Lodging,94,guesthouse
+Joe,Include,1/2/2017,BLUE Car Rental,Travel,1240.92,car rental
+Darc,Include,1/30/2017,AIRBNB INC,Lodging,-46,credit
+Darc,Include,1/15/2017,AIRBNB * H49Y29,Lodging,63,guesthouse
+Darc,Include,11/8/2016,WOW AIR HTEZ1M,Travel,619.96,airfare
+Darc,Include,11/8/2016,Expedia Travel Insurance,Travel,70,airfare
+Joe,Include,1/19/2017,Ol s nanaust,gas/automotive,35.97,gas
+Darc,Include,1/28/2017,N1,Gas/Automotive,42.91,gas
+Darc,Include,1/26/2017,N1,Gas/Automotive,38.62,gas
+Darc,Include,1/25/2017,N1,Gas/Automotive,34.47,gas
+Darc,Include,1/23/2017,N1,Gas/Automotive,37.51,gas
+Darc,Include,1/22/2017,N1,Gas/Automotive,26.62,gas
+Darc,Include,1/22/2017,N1,Gas/Automotive,26.62,gas
+Joe,Include,1/12/2017,Arctic adventures,Activity,349.9,glacier hike/ice cave
+Joe,Include,1/30/2017,Netto Grindavik,Dining,24.71,grocery
+Darc,Include,1/29/2017,Netto Borgarnesi/240,Dining,15.34,grocery
+Darc,Include,1/28/2017,Netto Borgarnesi/240,Dining,11.91,grocery
+Darc,Include,1/24/2017,Netto Egilsstodum/270,Dining,26.28,grocery
+Darc,Include,1/23/2017,Netto Hofn / 435,Dining,22.77,grocery
+Darc,Include,1/23/2017,Netto Egilsstodum/270,dining,16.61,grocery
+Darc,Include,1/20/2017,Kjarval Hvolsvelli,dining,13.09,grocery
+Darc,Include,1/19/2017,BONUS Fiskislod,dining,14.89,grocery
+Darc,Include,1/15/2017,AIRBNB * DM4CCC,Lodging,101,guesthouse
+Joe,Include,1/22/2017,Martolvan ehf,Lodging,100.92,guesthouse
+Darc,Include,1/29/2017,Bajarins Bestu Pylsur,Dining,9.87,snacks
+Joe,Include,12/30/2016,Expedia,Lodging,74.5,hotel
+Joe,Include,1/25/2017,Brynja Verslun ehf,Dining,7.33,snacks
+Joe,Include,1/18/2017,BLUE Car Rental,Travel,171.47,car rental
+Darc,Include,1/26/2017,Langafit ehf.,Lodging,125.35,hotel
+Darc,Include,1/20/2017,Lindartun guesthouse,Lodging,97.65,guesthouse
+Joe,Exclude,1/19/2017,ELKO- Granda,Merchandise,40.49,memory card
+Darc,Include,1/15/2017,AIRBNB * PPXXBT,Lodging,119,guesthouse
+Joe,Include,1/18/2017,Tjodminjasafn Islands,Activity,13.32,museum
+Darc,Include,1/18/2017,Tjodminjasafn Islands,activity,6.66,museum
+Darc,Include,1/15/2017,AIRBNB * R2XAXK,Lodging,58,guesthouse
+Joe,Include,1/20/2017,Tjodgardurinn a Tingvo,gas/automotive,4.4,parking
+Darc,Include,1/18/2017,RVK / Bilastadasj.midamal,Gas/Automotive,1.77,parking
+Darc,Include,1/18/2017,RVK / Bilastadasj.midamal,Gas/Automotive,1.77,parking
+Joe,Include,1/25/2017,P sturinn Strandgata,Merchandise,9.88,souvenir
+Darc,Include,1/25/2017,The Viking Akureyri,Merchandise,7.78,souvenir
+Joe,Include,1/29/2017,Svarta Kaffid,Dining,31.8,restaurant
+Joe,include,1/26/2017,Sveitasetrid Gauksmyr,Dining,42.92,restaurant
+Joe,Include,1/22/2017,Pakkhus,Dining,47.66,restaurant
+Joe,Include,1/21/2017,Halldorskaffi,Dining,36.76,restaurant
+Joe,Include,1/19/2017,Yellow,Dining,34.29,restaurant
+Joe,Include,1/18/2017,Svarta Kaffid,Dining,32.71,restaurant
+Darc,Include,1/27/2017,Lakitours - SH55 slf,Dining,32.49,restaurant
+Darc,Include,1/25/2017,Hollin,Dining,32.49,restaurant
+Darc,Include,1/24/2017,Vogafjos,Dining,73.57,restaurant
+Darc,Include,1/15/2017,AIRBNB * QWS4CP,Lodging,83,guesthouse
+Darc,Include,1/2/2017,AIRBNB * 9P94RT,Lodging,83,guesthouse
+Darc,Include,1/27/2017,Bjarnarhofn,Activity,19.09,museum
+Joe,Include,1/2/2017,DIVE.IS,Activity,350,silfra snorkeling
+Joe,Include,1/29/2017,Spolur ehf,Dining,8.58,snacks
+Joe,Include,1/28/2017,N1 Bruartorg,Dining,8.96,snacks
+Joe,Include,1/26/2017,K.S. HOFS S,Dining,3.79,snacks
+Joe,Include,1/22/2017,N1,Dining,10.73,snacks
+Darc,Include,1/30/2017,Adalbraut,Dining,6.1,snacks
+Darc,Include,1/29/2017,N1 Bruartorg 1 - 510,dining,5.07,snacks
+Darc,Include,1/28/2017,N1 Bruartorg 1 - 510,Dining,5.91,snacks
+Darc,Include,1/27/2017,Samkaup urval Grundarf/34,Dining,1.76,snacks
+Darc,Include,1/27/2017,Nesbraud,Dining,7.39,snacks
+Darc,Include,1/26/2017,N1,Dining,3.35,snacks
+Darc,Include,1/25/2017,Samkaup strax Myvatnssvei,dining,1.86,snacks
+Darc,Include,1/24/2017,N1,Dining,5.11,snacks
+Darc,Include,1/22/2017,N1,Dining,10.11,snacks
+Darc,Include,1/22/2017,N1,Dining,3.9,snacks
+Joe,Exclude,1/29/2017,Handprj nasamband,Merchandise,205.42,sweater
+Joe,Include,1/25/2017,Flora,Merchandise,10.4,souvenir
+Darc,Include,1/29/2017,Isbjorninn,Merchandise,5.93,souvenir
+Darc,Include,1/18/2017,Safnbud TjodminjasIslands,Merchandise,8.84,souvenir
+Joe,Include,1/26/2017,Gestastofa S tarans eh,Merchandise,20.87,souvenir
+Joe,Exclude,1/25/2017,Godafoss,Merchandise,4.29,souvenir
+Joe,exclude,1/25/2017,Godafossmarkadur ehf,Merchandise,51.71,souvenir
+Darc,exclude,1/29/2017,Handprjonasamband,Merchandise,170.18,sweater
+Darc,Include,1/12/2017,AIRBNB * 9QNA2K,Lodging,125,guesthouse
