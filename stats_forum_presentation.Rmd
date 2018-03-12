@@ -1,0 +1,47 @@
+---
+title: "Statistical Analysis in HTS"
+author: "Joseph Walker"
+date: "March 12, 2018"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(stringr)
+
+data <- read.csv("st4controlstraindata.csv")
+
+sort(names(data))
+
+subset <- data %>% select(assay, assay_plate_label, plate_group_label, y_number, well_position, raw_assay_value, assay_value, median_background_signal, ap_dilution_factor, reference_dilution_factor)
+
+subset <- subset %>% filter(!str_detect(string = plate_group_label,pattern = "M-*"))
+```
+
+Histogram
+
+```{r histogram}
+ggplot(subset, aes(x = assay_value)) +
+  geom_density(aes(fill = y_number)) +
+  geom_histogram(aes(y = ..density..),
+                 color = "black",
+                 fill = "white",
+                 alpha = 0.2
+                 ) +
+  
+  facet_wrap(~y_number, scales = "free")
+
+ggplot(subset, aes(x = assay_value, group = y_number, fill = y_number)) +
+  geom_density()
+```
+
+
+```{r scatterplot}
+
+ggplot(subset, aes (x =  y_number, y = assay_value)) +
+  geom_jitter()
+
+
+
+```
+
