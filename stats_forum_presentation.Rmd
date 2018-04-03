@@ -8,40 +8,115 @@ output: html_document
 ```{r}
 library(tidyverse)
 library(stringr)
+library(RColorBrewer)
 
-data <- read.csv("st4controlstraindata.csv")
+data <- read.csv("../data/st4controlstraindata.csv")
 
-sort(names(data))
+control_strains <- data %>% select(assay, plate_group_label, y_number, assay_value)
 
-subset <- data %>% select(assay, assay_plate_label, plate_group_label, y_number, well_position, raw_assay_value, assay_value, median_background_signal, ap_dilution_factor, reference_dilution_factor)
-
-subset <- subset %>% filter(!str_detect(string = plate_group_label,pattern = "M-*"))
+control_strains <- control_strains %>% filter(!str_detect(string = plate_group_label,pattern = "M-*"))
 ```
 
 Histogram
 
 ```{r histogram}
-ggplot(subset, aes(x = assay_value)) +
+pop_means <- control_strains %>%
+  group_by(y_number) %>%
+  summarise(mean_assay_value = mean(assay_value))
+
+p1 <-ggplot(control_strains, aes(x = assay_value)) +
   geom_density(aes(fill = y_number)) +
   geom_histogram(aes(y = ..density..),
                  color = "black",
                  fill = "white",
                  alpha = 0.2
                  ) +
-  
-  facet_wrap(~y_number, scales = "free")
-
-ggplot(subset, aes(x = assay_value, group = y_number, fill = y_number)) +
-  geom_density()
+  facet_wrap(~y_number, scales = "free") +
+  geom_vline(aes(xintercept = mean_assay_value), data = pop_means, color = "red", linetype = "dashed")
 ```
 
 
 ```{r scatterplot}
 
-ggplot(subset, aes (x =  y_number, y = assay_value)) +
-  geom_jitter()
+p2 <- ggplot(control_strains, aes (x =  y_number, y = assay_value, color = y_number)) +
+  geom_jitter() +
+  stat_summary(geom = "point", fun.y = "mean", aes(group = y_number), color = "black")
+  
 
 
 
 ```
+
+```{r sample}
+set.seed(33)
+
+#take sample where n= 100
+sample1 <- control_strains %>%
+  mutate(sample = "sample1") %>%
+  select(y_number, assay_value, sample) %>%
+   group_by(y_number) %>%
+sample_n(size = 100, replace = T)
+
+set.seed(55)
+
+sample2 <- control_strains %>%
+  mutate(sample = "sample2") %>%
+  select(y_number, assay_value, sample) %>%
+   group_by(y_number) %>%
+sample_n(size = 100, replace = T)
+
+samples <- union(sample1, sample2)
+
+#sample mean
+sample_means <- samples %>%
+  group_by(y_number, sample) %>%
+  summarize(mean_assay_value = mean(assay_value))
+
+
+
+#plot histogram of samples
+ggplot(samples, aes(x = assay_value)) +
+  geom_histogram(color = "black", aes(fill =interaction(sample, y_number)), alpha = .6) +
+  geom_vline(data = sample_means, aes(xintercept = mean_assay_value, linetype = "sample mean", color = "sample mean")) +
+  geom_vline(data = pop_means, aes(xintercept = mean_assay_value, linetype = "population mean", color = "population mean"))+
+  scale_linetype_manual(name = "", values = c(`sample mean` = "solid", `population mean` = "dashed")) +
+  scale_color_manual(name = "", values = c("red", "black"))+
+  #scale_fill_manual(values = palette) +
+  facet_wrap(~y_number, scales = "free")
+  
+
+#plot samples
+ggplot(samples, aes(x = sample, y = assay_value))+
+  geom_jitter(aes(color = y_number)) +
+  stat_summary(geom = "point", fun.y = "mean", aes(shape = "sample mean"), color = "black") +
+  geom_hline(data = pop_means, aes(yintercept = mean_assay_value, linetype = "population mean"), color = "red") +
+  scale_linetype_manual(name = "", values = "dashed") +
+  scale_shape_manual(name = "", values = 16 ) +
+  facet_wrap(~y_number, scales = "free")
+```
+
+```{r}
+many_samples <- c()
+
+for(i in 1:1000){
+  samp <- subset %>%
+    group_by(y_number) %>%
+    sample_n(size = 100, replace = T)
+  
+  samp$sample <- i
+  
+  many_samples <- rbind(many_samples, samp)
+
+}
+
+many_sample_means <- many_samples %>%
+  group_by(y_number, sample) %>%
+  summarize(mean_assay_value = mean(assay_value))
+
+ggplot(many_sample_means, aes(x = mean_assay_value)) +
+  geom_density(aes(fill = y_number)) +
+  geom_histogram(aes(y = ..density..), color = "black", alpha = 0.2) +
+  facet_wrap(~y_number, scales = "free")
+```
+
 

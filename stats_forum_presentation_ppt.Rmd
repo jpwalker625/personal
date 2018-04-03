@@ -1,0 +1,243 @@
+---
+title: "Practical Statistical Applications in HTS"
+author: "Joseph Walker"
+date: "March 14, 2018"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = F, message = F, fig.align = 'center', out.width = '60%')
+
+library(tidyverse)
+library(stringr)
+library(RColorBrewer)
+library(forcats)
+
+data <- read.csv("../data/st4controlstraindata.csv")
+
+#select variables of interest
+control_strains <- data %>% select(assay, plate_group_label, y_number, assay_value)
+
+#filter out non - PG labels
+control_strains <- control_strains %>% filter(!str_detect(string = plate_group_label,pattern = "M-*"))
+
+#drop factor levels that were filtered out
+control_strains$plate_group_label <- fct_drop(control_strains$plate_group_label)
+
+#reorder the y_number factor
+control_strains$y_number <- control_strains$y_number %>% fct_relevel(c("Y967", "Y4352", "Y16148", "Y22322", "Y29438"))
+
+#summarize the number of plate groups
+plate_groups <- control_strains %>% distinct(plate_group_label) %>%
+  summarise(n())
+
+
+```
+## Introduction
+
+High Thoughput Screening runs many processes and generates large quantities of data.  
+* CORE
+* Mutagenesis
+* ST4
+* Rapid Fire
+
+Currently we rely on control strains as our standards: **stable, cosistent, high replication**
+
+Allows us to compare strain performasance and ensure our processes are within spec.
+
+**Assay**: Fene Production from media containing sucrose as the carbon source.
+
+**Plate Groups**: `r plate_groups`
+
+**Strains**: `r levels(control_strains$y_number)`
+
+## Examine the data
+
+```{r}
+summary(control_strains)
+```
+
+```{r population scatterplot}
+ggplot(control_strains, aes (x =  y_number, y = assay_value, color = y_number)) +
+  geom_jitter() +
+  stat_summary(geom = "point", fun.y = "mean", aes(group = y_number, shape = "population mean"), color = "black") +
+  scale_shape_manual(name = "", values = 16)
+```
+
+
+## The Central Limit Theorem
+
+> If a sample consists of at least 30 independent observations and the data are not strongly skewed, then the distribution of the sample mean is well approximated by a normal model. Additionally, the normal approximation improves as the sample size becomes larger.
+
+What does that really mean? 
+
+First let's take a look at the distribution of the populations for each strain.  
+
+
+```{r population histogram}
+pop_means <- control_strains %>%
+  mutate(sample = "sample1") %>%
+  group_by(y_number, sample) %>%
+  summarise(mean_assay_value = mean(assay_value))
+
+ggplot(control_strains, aes(x = assay_value)) +
+  geom_density(aes(fill = y_number)) +
+  geom_histogram(aes(y = ..density..),
+                 color = "black",
+                 fill = "white",
+                 alpha = 0.2
+                 ) +
+  facet_wrap(~y_number, scales = "free") +
+  geom_vline(aes(xintercept = mean_assay_value, linetype = "population mean"), data = pop_means, color = "red", size = .75) +
+  scale_linetype_manual(name = "", values = "dashed") +
+  guides(linetype = guide_legend(order = 1))
+
+```
+
+## CLT continued
+
+In any given plate group, there are *only* 30 replicates for a given strain in the fuvmo sucrose assay.
+
+We assume: **plate group mean = population mean**
+
+We can replicate this by taking a sample of the data.
+
+```{r}
+set.seed(121)
+
+#take sample where n= 100
+sample1 <- control_strains %>%
+  mutate(sample = "sample1") %>%
+  select(y_number, assay_value, sample) %>%
+   group_by(y_number) %>%
+sample_n(size = 30, replace = T)
+
+set.seed(555)
+
+sample2 <- control_strains %>%
+  mutate(sample = "sample2") %>%
+  select(y_number, assay_value, sample) %>%
+   group_by(y_number) %>%
+sample_n(size = 30, replace = T)
+
+samples <- union(sample1, sample2)
+
+#sample mean
+sample_means <- samples %>%
+  group_by(y_number, sample) %>%
+  summarize(mean_assay_value = mean(assay_value))
+
+ggplot(samples, aes(x = sample, y = assay_value))+
+  geom_point(position = position_jitter(width = 0.1, height = 0.1),aes(color = y_number)) +
+  stat_summary(geom = "point", fun.y = "mean", aes(shape = "sample mean"), color = "black") +
+  geom_hline(data = pop_means, aes(yintercept = mean_assay_value, linetype = "population mean"), color = "red") +
+  scale_linetype_manual(name = "", values = "dashed") +
+  scale_shape_manual(name = "", values = 16 ) +
+  facet_wrap(~y_number, scales = "free") +
+  guides(linetype = guide_legend(order = 1),
+         shape = guide_legend(order = 2))
+```
+
+## CLT Continued
+
+And again, we can visualize the distributions of these two samples:
+
+```{r}
+temp <- pop_means
+temp$sample <- "sample2"
+
+pop_means <- union(temp, pop_means)  
+
+ggplot(samples, aes(x = assay_value)) +
+  geom_histogram(color = "black", aes(fill = y_number), alpha = .8) +
+  geom_vline(data = sample_means, aes(xintercept = mean_assay_value, linetype = "sample mean", color = "sample mean"),size = .75) +
+  geom_vline(data = pop_means, aes(xintercept = mean_assay_value, linetype = "population mean", color = "population mean"), size = .75)+
+  scale_linetype_manual(name = "", values = c(`sample mean` = "dashed", `population mean` = "dashed")) +
+  scale_color_manual(name = "", values = c("red", "black"))+
+  facet_wrap(~y_number + sample, scales = "free") +
+  guides(color = guide_legend(order = 1),
+         linetype = guide_legend(order = 1))
+```
+
+## sampling the population many times
+
+So then, let's break down the first concept of the CLT. If we continue sampling our population (n = 30), and we take the mean of each of those samples, we'd expect the distribution of those means to be normal, centered around the original population mean.
+
+Let's take 1000 samples and see if this holds.
+
+5 strains, 30 random samples per strain, repeated 1000 times = 150,000 total samples
+  
+30,000 samples for each strain
+
+```{r}
+many_samples <- c()
+
+for(i in 1:1000){
+  samp <- control_strains %>%
+    group_by(y_number) %>%
+    sample_n(size = 30, replace = T)
+  
+  samp$sample <- i
+  
+  many_samples <- rbind(many_samples, samp)
+
+}
+
+many_samples$sample <- as.factor(many_samples$sample)
+
+summary(many_samples)
+
+many_sample_means <- many_samples %>%
+  group_by(y_number, sample) %>%
+  summarize(mean_assay_value = mean(assay_value))
+
+ggplot(many_sample_means, aes(x = mean_assay_value)) +
+  geom_density(aes(fill = y_number)) +
+  geom_histogram(aes(y = ..density..), color = "black", alpha = 0.2) +
+  geom_vline(data = pop_means, aes(xintercept = mean_assay_value, linetype = "population mean"), color = "red", size = 1)+
+  facet_wrap(~y_number, scales = "free") +
+  scale_linetype_manual(name = "", values = "dashed") +
+  guides(linetype = guide_legend(order = 1))
+```
+
+## Increasing sample size
+
+The second key concept of the Central Limit Theorem indicates that the approximation of the normal distribution, or, our ability to approximate the population mean (The true mean) improves as the sample size increases. 
+
+Now let's repeat what we did by taking 1000 random samples of the population for each strain assay value, but this time we'll change the replication so that each sample has 100 observations (instead of 30).
+
+5 strains, 100 random samples per strain, repeated 1,000 times = 500,000 total samples.
+
+100,000 samples per strain (70,000 more each than the previous example).
+```{r}
+many_samples_100 <- c()
+
+for(i in 1:1000){
+  samp <- control_strains %>%
+    group_by(y_number) %>%
+    sample_n(size = 100, replace = T)
+  
+  samp$sample <- i
+  
+  many_samples_100 <- rbind(many_samples_100, samp)
+
+}
+
+many_samples_100$sample <- as.factor(many_samples_100$sample)
+
+summary(many_samples_100)
+
+many_samples_100_means <- many_samples_100 %>%
+  group_by(y_number, sample) %>%
+  summarize(mean_assay_value = mean(assay_value))
+
+ggplot(many_samples_100_means, aes(x = mean_assay_value)) +
+  geom_density(aes(fill = y_number)) +
+  geom_histogram(aes(y = ..density..), color = "black", alpha = 0.2) +
+  geom_vline(data = pop_means, aes(xintercept = mean_assay_value, linetype = "population mean"), color = "red", size = 1)+
+  facet_wrap(~y_number, scales = "free") +
+  scale_linetype_manual(name = "", values = "dashed") +
+  guides(linetype = guide_legend(order = 2))
+```
