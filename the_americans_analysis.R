@@ -5,7 +5,7 @@ library(purrr)
 library(rebus)
 library(lubridate)
 
-chart <- as.tibble()
+chart <- tibble()
 seasons <- 1:6
 
 imdbScrape <- function(x){
@@ -26,18 +26,18 @@ imdbScrape <- function(x){
 americans <- map_df(.x = seasons, .f = imdbScrape)
 
 #Parse out columns
-americans <- americans %>%
+americans_clean <- americans %>%
   #separate the details into season and episode
   separate(col = Details, into = c("Season", "Episode"), sep = ", ") %>%
   #convert Date to date format, extract the rating & votes, drop characters from seasons and votes
-  mutate(Date =  dmy(str_extract(americans$Date, pattern = "\\b.*")),
+  mutate(Date =  dmy(str_extract(Date, pattern = "\\b.*")),
          Rating = as.numeric(str_extract(string = americans$Rating, pattern = "\\w.*")),
          Votes = str_extract(string = americans$Rating, pattern = "(?<=\\().*(?=\\))"),
-         Votes = as.integer(str_remove(temp$Votes, pattern = ",")))
-
-americans_clean <- americans %>%
-  mutate(Episode = as.factor(str_extract(string = americans$Episode, pattern = "\\d")),
-         Season = as.factor(str_extract(string = americans$Season, pattern = "\\d")))
+         Votes = as.integer(str_remove(Votes, pattern = ",")),
+         #convert episode into factor and drop prefix 'Ep'
+         Episode = as.factor(str_extract(string = Episode, pattern = "\\d")),
+         #convert Season to factor and drop prefix 'S'
+         Season = as.factor(str_extract(string =Season, pattern = "\\d")))
 
 
 
